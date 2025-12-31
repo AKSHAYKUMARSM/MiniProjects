@@ -2,14 +2,20 @@ package src.Manager;
 
 //Structure that shows what each contact contains
 public class ContactStructure {
+    int id;
     String name;
     String number;
     String email;
 
-    public ContactStructure(String name, String number, String email) {
+    public ContactStructure(int id, String name, String number, String email) {
+        this.id = id;
         this.name = name;
         this.number = number;
         this.email = email;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getName() {
@@ -38,6 +44,7 @@ public class ContactStructure {
 
     @Override
     public String toString() {
-        return "Name: \t" + this.name + "\nNumber: \t" + this.number + "\nEmail: \t" + this.email + "\n";
+        return "Id:\t" + this.id + "\nName: \t" + this.name + "\nNumber: \t" + this.number + "\nEmail: \t" + this.email
+                + "\n";
     }
 }

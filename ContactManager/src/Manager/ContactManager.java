@@ -1,77 +1,102 @@
 package src.Manager;
 
 import java.util.ArrayList;
+import java.util.regex.Pattern;
+import src.Database.ContactDatabase;
 
-//Manager to manage a list of contacts
+//Manager to manage a list of contacts with necessary tool/methods
 public class ContactManager {
     private static ArrayList<ContactStructure> contacts = new ArrayList<>();
-    private int contactCount = 0;
+    private final Pattern PHONE_NUM_PATTERN = Pattern.compile("[\\d\\s\\-*#+]+");
+    private final Pattern EMAIL_PATTERN = Pattern.compile("^.+@[\\w\\-]+\\.[\\w\\-]*\\w$");
+    private ContactDatabase contactDatabase = new ContactDatabase();
 
-    // To add the contact checks if name exists if not adds and checks again if name
-    // is added correctly and return the string status
-    public void addContact(String name, String number, String email) {
-        contacts.add(new ContactStructure(name, number, email));
+    // Validate and add to contact and return a error message if any
+    public String addContact(String name, String number, String email) {
+        if (validatePhoneNum(number) && validatename(name)
+                && (validateEmail(email) || email == null || email.isEmpty())) {
+            contactDatabase.addContact(name, number, email);
+            refreshContacts();
+            return null;
+        }
+        if (!(validateEmail(email) || email == null || email.isEmpty()))
+            return "Invalid Email! Remove if not available";
+        return "Invalid Name or Number!";
     }
 
-    // Returns every contact in the list in a long String
-    public String displayContacts() {
-        String details = "";
-        if (contacts.isEmpty())
-            return "Empty Contact List";
-        for (ContactStructure contact : contacts)
-            details += contact.toString();
-        return details + "\nEOF\n";
+    // Searches the list for contacts with exact match and returns contact else null
+    public ContactStructure searchContact(int id) {
+        if (id <= 0)
+            return null;
+        return contactDatabase.searchContact(id);
     }
 
-    // Searches the list for contacts and returns entire contact else null
-    public ContactStructure searchContact(String name, Boolean ExactMatch) {
-        for (ContactStructure contact : contacts)
-            if (contact.name == name)
-                return contact;
+    // Searches if a contact contains the name in and returns the contact else null
+    public ArrayList<ContactStructure> searchContact(String nameOrPhone) {
+        if (nameOrPhone == null || nameOrPhone.isBlank())
+            return null;
+        return contactDatabase.searchContacts(nameOrPhone);
+    }
 
+    // takes contact as input instead of name and deletes it directly
+    public ContactStructure deleteContact(ContactStructure contact) {
+        if (contact != null && contactDatabase.deleteContact(contact.getId())) {
+            refreshContacts();
+            return contact;
+        }
         return null;
     }
 
-    public ArrayList<ContactStructure> searchContact(String name) {
-        ArrayList<ContactStructure> contactSearched = new ArrayList<>();
+    public ArrayList<ContactStructure> getContacts() {
+        refreshContacts();
+        return contacts;
+    }
+
+    // takes in the contact reference and updates its details and return any error
+    // message
+    public String updateContact(ContactStructure contact, String name, String number, String email) {
+        if (validatePhoneNum(number) && validatename(name)
+                && (email == null || validateEmail(email) || email.isEmpty())) {
+            contactDatabase.updateContact(contact.getId(), name, number, email);
+            refreshContacts();
+            return null;
+        }
+        if (!(email == null || validateEmail(email) || email.isEmpty()))
+            return "Invalid Email! Remove if unavailable";
+        return "Invalid Name or Number!";
+    }
+
+    // name validation checks if name is empty or has only spaces
+    private boolean validatename(String name) {
+        return name != null && !name.trim().isEmpty();
+    }
+
+    // Basic number validation
+    private boolean validatePhoneNum(String phone) {
+        return phone != null && !phone.trim().isEmpty() && PHONE_NUM_PATTERN.matcher(phone).matches();
+    }
+
+    // Basic email validation
+    private boolean validateEmail(String email) {
+        return email != null && EMAIL_PATTERN.matcher(email).matches();
+    }
+
+    // Remove contact list and fetch 10 contacts from database
+    public void refreshContacts() {
+        contacts.clear();
+        contacts.addAll(contactDatabase.fetchContacts());
+    }
+
+    // Returns every contact in the list in single long String formatted
+    @Override
+    public String toString() {
+        refreshContacts();
+        String details = "";
+        refreshContacts();
+        if (contacts.isEmpty())
+            return "Empty Contact List";
         for (ContactStructure contact : contacts)
-            if (contact.name.contains(name))
-                contactSearched.add(contact);
-
-        return contactSearched;
-    }
-
-    // Searches the name in list and deletes if exists and returns the deleted
-    // contact
-    public ContactStructure deleteContact(String name) {
-        ContactStructure contact = searchContact(name, true);
-        if (contact != null)
-            contacts.remove(contact);
-        return contact;
-    }
-
-    public ContactStructure deleteContact(ContactStructure contact) {
-        if (contact != null)
-            contacts.remove(contact);
-        return contact;
-    }
-
-    public boolean hasContacts() {
-        return ((contacts.size()) > contactCount) ? true : false;
-    }
-
-    public ContactStructure getNextContact() {
-        return (hasContacts()) ? contacts.get(contactCount++) : null;
-    }
-
-    public void setHascontacts() {
-        contactCount = 0;
-    }
-
-    public int updateContact(ContactStructure contact, String name, String number, String email) {
-        contact.setName(name);
-        contact.setNumber(number);
-        contact.setEmail(email);
-        return 0;
+            details += contact.toString() + "\n";
+        return details + "\nEOF\n";
     }
 }

@@ -4,3 +4,7 @@ It's morning 4:05am 29/12/25 and done with Managing function and some basic UI j
 
 At 8:44pm 30/12/25 Done with most of the project only validation remains
 Although more improvement is possible but going for othe frameworks makes it easy so for this project this much is enough don't wanna overdue it
+
+At 12:52 31/12/25 completed the project and thinking of attaching the dataBase later
+
+At 1:40AM 01/01/2026 Project completed! Happy New year

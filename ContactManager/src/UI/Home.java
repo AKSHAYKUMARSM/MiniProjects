@@ -21,23 +21,22 @@ public class Home {
     ContactManager contactManager = new ContactManager();
     JFrame rootFrame = new JFrame("Contact Manager");
     JPanel headPanel = new JPanel(new BorderLayout());
+    JPanel searchPanel = new JPanel(new FlowLayout());
     JPanel navigationPanel = new JPanel();
     JPanel displayPanel = new JPanel();
-    JPanel searchPanel = new JPanel(new FlowLayout());
+    JPanel searchingPanel = new JPanel();
 
-    JLabel head = new JLabel("Contact Manager", SwingConstants.CENTER);
+    JLabel head = new JLabel("Contacts", SwingConstants.CENTER);
     JButton addContactButton = new JButton("Add to Contact");
     JButton refreshButton = new JButton("Refresh");
     JButton settingButton = new JButton("Settings");
     JButton searchContactButton = new JButton("Search");
     JButton exiButton = new JButton("Exit");
     JTextField searchField = new JTextField(15);
-    ArrayList<JTextArea> contactTextArea = new ArrayList<>();
+    ArrayList<JTextArea> contactDisplayArea = new ArrayList<>();
 
     public Home() {
         rootFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        rootFrame.getContentPane().setBackground(Color.LIGHT_GRAY);
-        rootFrame.setSize(600, 750);
         rootFrame.setLocationRelativeTo(null);
 
         refreshButton.addActionListener(e -> refreshContacts());
@@ -46,21 +45,21 @@ public class Home {
         exiButton.addActionListener(e -> System.exit(0));
         searchContactButton.addActionListener(e -> searchContact(searchField.getText()));
 
-        headPanel.setBackground(Color.CYAN);
-
-        headPanel.add(head, BorderLayout.CENTER);
-        headPanel.add(refreshButton, BorderLayout.EAST);
-
         navigationPanel.setLayout(new BoxLayout(navigationPanel, BoxLayout.X_AXIS));
-
         navigationPanel.add(settingButton);
         navigationPanel.add(addContactButton);
         navigationPanel.add(exiButton);
+
         searchPanel.add(searchField);
         searchPanel.add(searchContactButton);
+
+        headPanel.setBackground(Color.CYAN);
+        headPanel.add(head, BorderLayout.CENTER);
+        headPanel.add(refreshButton, BorderLayout.EAST);
         headPanel.add(searchPanel, BorderLayout.SOUTH);
 
         displayPanel.setLayout(new BoxLayout(displayPanel, BoxLayout.Y_AXIS));
+        searchingPanel.setLayout(new BoxLayout(searchingPanel, BoxLayout.Y_AXIS));
 
         refreshContacts();
         // displayPanel.add(new JTextArea(contactManager.displayContacts()));
@@ -75,59 +74,64 @@ public class Home {
     }
 
     public void refreshContacts() {
+        refreshButton.setText("Refresh");
+        searchField.setText(null);
         displayPanel.removeAll();
-        contactTextArea.removeAll(contactTextArea);
+        contactDisplayArea.clear();
+        if (contactManager.getContacts().isEmpty()) {
+            displayPanel.add(new JTextArea("Empty Contact List!"));
+            return;
+        }
 
-        while (contactManager.hasContacts()) {
-            ContactStructure contact = contactManager.getNextContact();
-            JTextArea newContaButton = new JTextArea(contact.getName() + "\n\t" + contact.getNumber());
-            contactTextArea.add(newContaButton);
-            displayPanel.add(contactTextArea.getLast());
-            newContaButton.setBackground(rootFrame.getContentPane().getBackground());
-            newContaButton
-                    .setForeground(newContaButton.getBackground().equals(Color.BLACK) ? Color.WHITE : Color.BLACK);
-            contactTextArea.getLast().addMouseListener(new MouseAdapter() {
+        for (ContactStructure contact : contactManager.getContacts()) {
+            JTextArea newContact = new JTextArea(contact.getName() + "\n\t" + contact.getNumber());
+            displayPanel.add(newContact);
+            newContact.setBackground(rootFrame.getContentPane().getBackground());
+            newContact.setForeground(newContact.getBackground()
+                    .equals(Color.BLACK) ? Color.WHITE : Color.BLACK);
+
+            newContact.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     detailMenu(contact);
                 }
             });
         }
-        contactManager.setHascontacts();
+        rootFrame.remove(searchingPanel);
+        rootFrame.add(displayPanel);
         displayPanel.revalidate();
+        rootFrame.repaint();
         rootFrame.pack();
-        // displayPanel.repaint();
     }
 
     public void detailMenu(ContactStructure contact) {
         new DetailWindow(rootFrame, contact, this);
     }
 
-    public void searchContact(String name) {
-        if (name.isEmpty())
+    public void searchContact(String nameOrPhone) {
+        rootFrame.getContentPane().remove(displayPanel);
+        refreshButton.setText("Cancel Search");
+        rootFrame.add(searchingPanel, BorderLayout.CENTER);
+        searchingPanel.removeAll();
+        if (contactManager.searchContact(nameOrPhone) == null || contactManager.searchContact(nameOrPhone).isEmpty())
             return;
-        displayPanel.removeAll();
-        contactTextArea.removeAll(contactTextArea);
-        for (ContactStructure contact : contactManager.searchContact(name)) {
-            JTextArea newContaButton = new JTextArea(contact.getName() + "\n\t" +
-                    contact.getNumber());
-            contactTextArea.add(newContaButton);
-            displayPanel.add(contactTextArea.getLast());
-            newContaButton.setBackground(rootFrame.getContentPane().getBackground());
-            newContaButton
-                    .setForeground(newContaButton.getBackground().equals(Color.BLACK) ? Color.WHITE : Color.BLACK);
-            contactTextArea.getLast().addMouseListener(new MouseAdapter() {
+        for (ContactStructure contact : contactManager.searchContact(nameOrPhone)) {
+            JTextArea newContact = new JTextArea(contact.getName() + "\n\t" + contact.getNumber());
+            searchingPanel.add(newContact);
+            newContact.setBackground(rootFrame.getContentPane().getBackground());
+            newContact.setForeground(newContact.getBackground()
+                    .equals(Color.BLACK) ? Color.WHITE : Color.BLACK);
+
+            newContact.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     detailMenu(contact);
                 }
             });
         }
-        JTextArea endofTextArea = new JTextArea("End of Search");
-        displayPanel.add(endofTextArea);
-
-        displayPanel.revalidate();
-        rootFrame.pack();
+        searchingPanel.repaint();
+        searchingPanel.revalidate();
+        rootFrame.repaint();
     }
 
     public void changeTheme(Color b) {

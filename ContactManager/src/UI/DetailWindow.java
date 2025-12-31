@@ -49,8 +49,12 @@ public class DetailWindow {
                 contactList.deleteContact(contact);
                 closeWindow();
             });
-        } else
+
+            saveButton.addActionListener(e -> save(true, contact));
+        } else {
             name = number = email = "";
+            saveButton.addActionListener(e -> save(false, null));
+        }
 
         nameField.setText(name);
         numberField.setText(number);
@@ -85,10 +89,6 @@ public class DetailWindow {
             closeWindow();
         });
 
-        saveButton.addActionListener(e -> {
-            save();
-        });
-
     }
 
     public void closeWindow() {
@@ -97,16 +97,27 @@ public class DetailWindow {
         parentUI.refreshContacts();
     }
 
-    public void save() {
-        name = nameField.getText();
-        number = numberField.getText();
-        email = emailField.getText();
-        if (name.isEmpty() || number.isEmpty()) {
+    public void save(boolean updateContact, ContactStructure contact) {
+        String statuString;
+        name = nameField.getText().trim();
+        number = numberField.getText().trim();
+        email = emailField.getText().trim();
+        if (name.isBlank() || number.isBlank()) {
             status.setText("Please Enter Both name and number!");
             status.setForeground(Color.RED);
             return;
         }
-        contactList.addContact(name, number, email);
-        closeWindow();
+
+        if (updateContact)
+            statuString = contactList.updateContact(contact, name, number, email);
+        else
+            statuString = contactList.addContact(name, number, email);
+        if (statuString == null)
+            closeWindow();
+        else {
+            status.setText(statuString);
+            status.setForeground(Color.RED);
+            status.setBackground(Color.ORANGE);
+        }
     }
 }
