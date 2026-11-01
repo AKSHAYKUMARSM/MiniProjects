@@ -1,0 +1,110 @@
+body{
+    display: grid;
+    justify-content: center;
+}
+
+.error{
+    color: red;
+    background-color: pink;
+}
+
+.box{
+    border-radius: 1em;
+    box-shadow: 0 0 1em blue;
+    background-color: lightgreen;
+    margin: 0.5rem;
+    width: fit-content;
+    align-content: center;
+    justify-content: center;
+}
+
+form{
+    
+    border: 0.1em solid black;
+    border-radius: 0.5rem;
+    background-color: aqua;
+    width: fit-content;
+    box-shadow: 0 0 0.1em orange;
+    
+    input{
+        border: none;
+        background-color: lightblue;
+        padding: 0.5em;
+        border-radius: inherit;
+    }
+    button{
+        background-color: transparent;
+        border: none;
+    }
+}
+
+button:hover{
+    color: green;
+}
+
+button:active{
+    color: white;
+    text-shadow: 0 0 1em grey;
+}
+
+legend{
+    text-align: center;
+    font-weight: bolder;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+P{
+    text-align: center;
+}
+
+.weather{
+    background-color: lightcyan;
+    color: blue;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 0.2em;
+    margin: auto;
+    margin-bottom: 0.5em;
+    margin-top: 0.5em;
+    p{
+        border-right: 0.1em dotted blue;
+        padding: 0.2em;
+        margin: 0.5em;
+        text-align: left;
+    }
+    p:last-child{
+    border: none;
+    }
+}
+
+table {
+    box-shadow: 0 0 2em orange;
+    background-color: antiquewhite;
+    border-radius: inherit;
+    border-spacing: 0.1em;
+    padding: 0.2em;
+    text-align: left;
+    padding: 0.5em;
+    margin: auto;
+    margin-bottom: 0.5em;
+    margin-top: 0.5em;
+}
+
+th,td{
+    border-right: 0.1em dotted blue;
+    border-bottom: 0.1em solid blue;
+}
+
+th:last-child,td:last-child{
+    border-right: none;
+}
+
+td{
+    text-align: center;
+}
+
+tr:hover{
+    background-color: orange;
+    color:aliceblue
+}
