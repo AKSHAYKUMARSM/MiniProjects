@@ -1,0 +1,82 @@
+body{
+    background-color: aquamarine;
+    justify-content: center;
+    display: grid;
+}
+
+.hidden{
+    display: none;
+}
+
+.box{
+    border-radius: 1em;
+    box-shadow: 0 0 1em blue;
+    background-color: lightgreen;
+    margin: 0.5rem;
+    padding: 0.5em;
+    width: fit-content;
+    align-content: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.optionContainer{
+    display: flex;
+    flex-flow: column nowrap;
+}
+
+.option{
+    text-align: left;
+}
+
+.correct{
+    background-color: green;
+    color: white;
+}
+
+.correct::after{
+    content: '✔️'/'correct';
+}
+
+.wrong{
+    background-color: red;
+    color: white;
+}
+
+.wrong::after{
+    content:'❌' /'wrong';
+}
+
+button{
+    background-color: lightsalmon;
+    color:purple;
+    margin: 0.2em;
+    padding: 0.5em;
+    border-radius: 0.5em;
+    box-shadow: -0.2em 0.2em purple;
+    width: fit-content;
+}
+
+button:hover{
+    color: aliceblue;
+}
+
+button:active{
+    background-color: brown;
+    box-shadow:0 0  purple;
+}
+
+button:disabled{
+    opacity: 0.8;
+    box-shadow: none;
+}
+
+#counter{
+    float: right;
+}
+
+.menu,#start{
+    float: right;
+    background-color: aqua;
+}
+
