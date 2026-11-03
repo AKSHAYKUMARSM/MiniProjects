@@ -1,5 +1,7 @@
 import { questions } from "./question.js";
 
+const randomQuestions = suffleArray([...questions]);
+
 const startMenu = document.getElementById('startMenu');
 const startBtn = document.getElementById('start');
 
@@ -16,15 +18,17 @@ const restartBtn =  document.getElementById('restart');
 const menuBtn = document.querySelectorAll('.menu');
 const hiddenClass = 'hidden';
 const optionClass = 'option';
+const timer = 2.5*60;
 
+let stopwatch;
 let currentQuestion = 0;
 let score = 0;
+let duration = 0;
 
-
-nextBtn.addEventListener('click',nextQuestion);
 restartBtn.addEventListener('click',loadQuestions);
 startBtn.addEventListener('click',loadQuestions)
 menuBtn.forEach((element)=>element.addEventListener('click',()=>{
+    clearInterval(stopwatch);
     resultContainer.classList.add(hiddenClass);
     quizContainer.classList.add(hiddenClass);
     startMenu.classList.remove(hiddenClass);
@@ -39,40 +43,71 @@ function loadQuestions(){
     currentQuestion=0;
     score = 0;
 
+    nextBtn.removeEventListener('click',showResult);
+    nextBtn.addEventListener('click',nextQuestion);
+    nextBtn.textContent = `Next`;
     resultContainer.classList.add(hiddenClass);
     startMenu.classList.add(hiddenClass);
     quizContainer.classList.remove(hiddenClass);
     getQuestion(currentQuestion);
+
+    duration = timer;
+    getduration();
+    stopwatch = setInterval(()=>{getduration()},1000);
+    
+}
+
+function getduration(){
+    const minute = String(Math.floor(duration/60)).padStart(2,'0');
+    const second = String(duration%60).padStart(2,'0');
+
+    document.getElementById('timer').textContent = `Duration: ${minute}:${second}`;
+    duration--;
+
+    if(duration<0) {
+        clearInterval(stopwatch);
+        optionContainer.innerHTML = `<h3>Time's Up</h3>`;
+        nextBtn.removeEventListener('click',getQuestion);
+        nextBtn.textContent = 'Show Result';
+        nextBtn.addEventListener('click',showResult);
+        nextBtn.style.display = 'block';
+    }
 }
 
 function nextQuestion(){
-    if(currentQuestion<questions.length-1){
-    currentQuestion+=1; 
+    getQuestion(currentQuestion++);
 
-    getQuestion(currentQuestion)
-    }else{
-        quizContainer.classList.add(hiddenClass);
-        resultContainer.classList.remove(hiddenClass);
-        scoreElement.innerText = `You have scored ${score} out of ${questions.length} questions`;
-
-        getHighScore();
+    if(currentQuestion>=randomQuestions.length-1) {
+        nextBtn.removeEventListener('click',getQuestion);
+        nextBtn.textContent = 'Show Result';
+        nextBtn.addEventListener('click',showResult);
     }
 
 }
 
+function showResult(){
+    clearInterval(stopwatch);
+    quizContainer.classList.add(hiddenClass);
+    resultContainer.classList.remove(hiddenClass);
+    scoreElement.innerText = `You have scored ${score} out of ${randomQuestions.length} questions`;
+
+    getHighScore();
+}
+
 function getHighScore(){
-    const highScore = localStorage.getItem('quizHighScore');
-        if(highScore<score) localStorage.setItem('quizHighScore',score);
-        
-        highScoreBoard.forEach((element) =>{element.innerText = `🏆High Score: ${highScore}`})
-        
+    let highScore = localStorage.getItem('quizHighScore');
+        if(highScore<score) {
+            localStorage.setItem('quizHighScore',score);
+            highScore = score;
+        }
+        highScoreBoard.forEach((element) =>{element.innerText = `🏆High Score: ${highScore||0}`})
 }
 
 function getQuestion(){
-    question.innerText =`${currentQuestion+1}.`+questions[currentQuestion].question;
+    question.innerText =`${currentQuestion+1}.`+randomQuestions[currentQuestion].question;
     
     optionContainer.innerHTML='';
-    questions[currentQuestion].options.forEach((option,index) => {
+    randomQuestions[currentQuestion].options.forEach((option,index) => {
         const optionBtn = document.createElement('button');
         optionBtn.classList.add(optionClass)
         optionBtn.addEventListener('click',()=>{checkAnswer(option,optionBtn)});
@@ -80,12 +115,13 @@ function getQuestion(){
         optionContainer.append(optionBtn)
     });
 
-    counterEl.innerText = `${currentQuestion+1}/${questions.length}`
+    counterEl.innerText = `${currentQuestion+1}/${randomQuestions.length}`
     nextBtn.style.display = 'none';
+    progressBar();
 }
 
 function checkAnswer(value,btn){
-    const correctAnswer = questions[currentQuestion].answer;
+    const correctAnswer = randomQuestions[currentQuestion].answer;
     const optionBtns = document.querySelectorAll('.'+optionClass);
     optionBtns.forEach((optionBtns) => {
         optionBtns.disabled=true;    
@@ -99,4 +135,22 @@ function checkAnswer(value,btn){
     }
 
     nextBtn.style.display = 'block';
+}
+
+function progressBar(){
+    const progress = document.getElementById('progress');
+    const percentage = ((currentQuestion+1)/randomQuestions.length)*100;
+    
+    progress.style.width = `${percentage}%`
+}
+
+function suffleArray(array){
+    for (let i = array.length-1; i > 0; i--) {
+        let rnd = Math.random()
+        let j = Math.floor(rnd*(i+1));
+        
+        [array[i],array[j]] = [array[j],array[i]];   
+    }
+    
+    return array
 }

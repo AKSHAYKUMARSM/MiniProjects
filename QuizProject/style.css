@@ -71,12 +71,39 @@ button:disabled{
     box-shadow: none;
 }
 
-#counter{
-    float: right;
-}
-
-.menu,#start{
-    float: right;
+.menu,#start,#next,#restart{
     background-color: aqua;
 }
 
+#progress-bar{
+    background-color: lightblue;
+    width: 100%;
+    height: 1em;
+    border-radius: 0.5em;
+    margin: 0.5em;
+}
+
+#progress{
+    width: 50%;
+    height: 100%;
+    border-radius: inherit;
+    background-color: green;
+    transition: width 0.3s ease-in;
+}
+
+.progress{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 1.5em;
+}
+
+#counter{
+    box-sizing: border-box;
+    height: 100%;
+}
+
+.nav{
+    display: flex;
+    justify-content:space-between;
+}
